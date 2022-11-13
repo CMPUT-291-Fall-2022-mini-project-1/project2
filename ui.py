@@ -7,3 +7,9 @@ MAIN_UI = """
 = 5. Exit
 ==================================
 """
+
+def ARTICLE_UI(article, index, fields):
+    if index:
+        print(f"{index}.")
+    for f in fields:
+        print(f"     {f}: {article[f]}")
