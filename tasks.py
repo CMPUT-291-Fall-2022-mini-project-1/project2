@@ -2,6 +2,7 @@ import re
 
 from pymongo.collection import Collection
 from ui import *
+from add_an_article import add_article
 
 def search_for_articles(dblp:Collection):
     
@@ -78,6 +79,7 @@ def list_the_venues(dblp:Collection):
     return
 
 def add_an_article(dblp:Collection):
+    add_article(dblp)
     return
 
 task_dict = {
