@@ -2,7 +2,7 @@ from pymongo import MongoClient
 from pymongo.collection import Collection
 def add_article(dblp:Collection) -> None:
    while True:
-        _id = input('provid a unique id: ')
+        _id = input('provide a unique id: ')
         if len(_id) == 0:
             print('id can not be empty')
             continue
@@ -23,8 +23,8 @@ def add_article(dblp:Collection) -> None:
                 continue
             article = {
                 'abstract':None,
-                'venue ':None,
-                'references ': [],
+                'venue':None,
+                'references': [],
                 'n_citations': 0,
                 'id':_id,
                 'title':_title,
