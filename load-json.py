@@ -12,19 +12,19 @@ def insert_data(filename:str, port:str) -> None:
     client = MongoClient(f"mongodb://localhost:{port}")
     db = client["291db"]
     dblp = db["dblp"]
+    #dblp.update_many({}, {"$set": {"yearStr": "$year"}})
+    dblp.aggregate([
+        {"$addFields": {"yearStr": {"$toString": "$year"}}},
+        {"$out": "dblp"}
+    ])
     
     dblp.create_index([
         ("title", "text"),
         ("authors", "text"),
         ("abstract", "text"),
         ("venue", "text"),
-        #("year", "integer")
+        ("yearStr", "text")
     ])
-    # dblp.create_index([("authors", "text")])
-    # dblp.create_index([("abstract", "text")])
-    # dblp.create_index([("venue", "text")])
-    dblp.create_index([("year", "hashed")])
-    pass
 
 
 

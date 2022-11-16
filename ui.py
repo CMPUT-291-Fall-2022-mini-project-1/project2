@@ -12,7 +12,10 @@ def ARTICLE_UI(article, index, fields):
     if index:
         print(f"{index}.")
     for f in fields:
+        if f not in article:
+            article[f] = ""
         print(f"     {f}: {article[f]}")
+
 
 
 def AUTHOR_UI(author, index, num_publications):
