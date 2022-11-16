@@ -4,12 +4,14 @@ from pymongo.collection import Collection
 from ui import *
 from add_an_article import add_article
 
-def search_for_articles(dblp:Collection):
-    
+
+def search_for_articles(dblp: Collection):
+
     # get all user keywords
-    keywords = list(set(input("Enter your keywords, separated by spaces: ").split(" ")))
+    keywords = list(
+        set(input("Enter your keywords, separated by spaces: ").split(" ")))
     keywords = [re.compile(f".*{k}.*", re.IGNORECASE) for k in keywords]
-    
+
     # match to title, authors, abstract, venue, year
     default_value = "N/A"
     articles = dblp.aggregate([
@@ -21,8 +23,8 @@ def search_for_articles(dblp:Collection):
                 {"abstract": {"$in": keywords}},
                 {"venue": {"$in": keywords}},
                 {"yearStr": {"$in": keywords}}
-                ]
-            }
+            ]
+        }
         },
         {"$project": {
             "_id": 0,
@@ -34,7 +36,7 @@ def search_for_articles(dblp:Collection):
             "authors": {"$ifNull": ["$authors", default_value]}
         }}
     ])
-    
+
     # display search result for user to select
     print("==================== Articles ====================")
     i = 1
@@ -44,16 +46,18 @@ def search_for_articles(dblp:Collection):
         ARTICLE_UI(ac, i, fields)
         select_dict[str(i)] = ac
         i += 1
-    
+
     # let user select one option
-    selected_ind = input("Select one of the articles, or type enter to cancel: ")
+    selected_ind = input(
+        "Select one of the articles, or type enter to cancel: ")
     while selected_ind not in select_dict:
         print("Please make a proper selection.")
-        selected_ind = input("\nSelect one of the articles, or type enter to cancel: ")
+        selected_ind = input(
+            "\nSelect one of the articles, or type enter to cancel: ")
     selected_article = select_dict[selected_ind]
     if selected_article is None:
         return
-    
+
     # display the detail of selected article
     fields = ["id", "year", "venue", "authors", "title", "abstract"]
     print("\nArticle detail:")
@@ -128,13 +132,43 @@ def search_for_authors(dblp:Collection):
         i += 1
 
 
-def list_the_venues(dblp:Collection):
+
+def list_the_venues(dblp: Collection):
+
+    venueCount = {}
+    venues = dblp.distinct("venue")
+    venues.remove("")
+
+    for venue in venues:
+        articleInVenue = dblp.find({"venue": venue})
+        venueCount[venue] = [0]
+        articleCount = 0
+        for article in articleInVenue:
+            articleCount += 1
+            venueCount[venue][0] += article["n_citation"]
+        venueCount[venue].append(articleCount)
+
+    topN = int(input("Enter top number: "))
+    print("==================== Venues ====================")
+
+    index = 1
+    for venueName in sorted(venueCount, key=venueCount.get, reverse=True):
+        print(str(index) + ".")
+        print("     " + "venue: " + venueName)
+        print("     " + "article count: " + str(venueCount[venueName][1]))
+        print("     " + "citation count: " + str(venueCount[venueName][0]))
+        if index == topN:
+            break
+        else:
+            index += 1
+
     return
 
-def add_an_article(dblp:Collection):
-    
+
+def add_an_article(dblp: Collection):
+
     while True:
-        
+
         # ask for a unique id
         _id = input("Please provide a unique id: ")
         if len(_id) == 0:
@@ -144,13 +178,13 @@ def add_an_article(dblp:Collection):
         if res:
             print("id not unique")
             continue
-        
+
         # ask for a title
         title = input("Provide a title: ")
         while len(title) == 0:
             print("title cannot be empty")
             title = input("Provide a title: ")
-        
+
         # ask for multiple authors
         authors = []
         i = 1
@@ -162,11 +196,12 @@ def add_an_article(dblp:Collection):
             else:
                 aut = input(f"Enter Author {i}: ")
                 if aut == "":
-                    print("Authors cannot be empty. At least 1 author need to be provided.")
+                    print(
+                        "Authors cannot be empty. At least 1 author need to be provided.")
                     continue
             authors.append(aut)
             i += 1
-        
+
         # ask for year
         while True:
             try:
@@ -175,18 +210,18 @@ def add_an_article(dblp:Collection):
             except ValueError:
                 print("Year is not valid.")
                 continue
-        
+
         # insert the new article
         article = {
-                'abstract': None,
-                'venue': None,
-                'references': [],
-                'n_citations': 0,
-                'id': _id,
-                'title': title,
-                'authors': authors,
-                'year': year
-            }
+            'abstract': None,
+            'venue': None,
+            'references': [],
+            'n_citations': 0,
+            'id': _id,
+            'title': title,
+            'authors': authors,
+            'year': year
+        }
         dblp.insert_one(article)
         print("Add an article successful")
         break
