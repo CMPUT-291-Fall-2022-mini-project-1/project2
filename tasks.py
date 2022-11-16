@@ -4,12 +4,14 @@ from pymongo.collection import Collection
 from ui import *
 from add_an_article import add_article
 
-def search_for_articles(dblp:Collection):
-    
+
+def search_for_articles(dblp: Collection):
+
     # get all user keywords
-    keywords = list(set(input("Enter your keywords, separated by spaces: ").split(" ")))
+    keywords = list(
+        set(input("Enter your keywords, separated by spaces: ").split(" ")))
     keywords = [re.compile(f".*{k}.*", re.IGNORECASE) for k in keywords]
-    
+
     # match to title, authors, abstract, venue, year
     default_value = "N/A"
     articles = dblp.aggregate([
@@ -21,8 +23,8 @@ def search_for_articles(dblp:Collection):
                 {"abstract": {"$in": keywords}},
                 {"venue": {"$in": keywords}},
                 {"yearStr": {"$in": keywords}}
-                ]
-            }
+            ]
+        }
         },
         {"$project": {
             "_id": 0,
@@ -34,7 +36,7 @@ def search_for_articles(dblp:Collection):
             "authors": {"$ifNull": ["$authors", default_value]}
         }}
     ])
-    
+
     # display search result for user to select
     print("==================== Articles ====================")
     i = 1
@@ -44,16 +46,18 @@ def search_for_articles(dblp:Collection):
         ARTICLE_UI(ac, i, fields)
         select_dict[str(i)] = ac
         i += 1
-    
+
     # let user select one option
-    selected_ind = input("Select one of the articles, or type enter to cancel: ")
+    selected_ind = input(
+        "Select one of the articles, or type enter to cancel: ")
     while selected_ind not in select_dict:
         print("Please make a proper selection.")
-        selected_ind = input("\nSelect one of the articles, or type enter to cancel: ")
+        selected_ind = input(
+            "\nSelect one of the articles, or type enter to cancel: ")
     selected_article = select_dict[selected_ind]
     if selected_article is None:
         return
-    
+
     # display the detail of selected article
     fields = ["id", "year", "venue", "authors", "title", "abstract"]
     print("\nArticle detail:")
@@ -69,18 +73,46 @@ def search_for_articles(dblp:Collection):
         print("This article is not being referenced.")
 
 
-
-
-
-def search_for_authors(dblp:Collection):
+def search_for_authors(dblp: Collection):
     return
 
-def list_the_venues(dblp:Collection):
+
+def list_the_venues(dblp: Collection):
+
+    venueCount = {}
+    venues = dblp.distinct("venue")
+    venues.remove("")
+
+    for venue in venues:
+        articleInVenue = dblp.find({"venue": venue})
+        venueCount[venue] = [0]
+        articleCount = 0
+        for article in articleInVenue:
+            articleCount += 1
+            venueCount[venue][0] += article["n_citation"]
+        venueCount[venue].append(articleCount)
+
+    topN = int(input("Enter top number: "))
+    print("==================== Venues ====================")
+
+    index = 1
+    for venueName in sorted(venueCount, key=venueCount.get, reverse=True):
+        print(str(index) + ".")
+        print("     " + "venue: " + venueName)
+        print("     " + "article count: " + str(venueCount[venueName][1]))
+        print("     " + "citation count: " + str(venueCount[venueName][0]))
+        if index == topN:
+            break
+        else:
+            index += 1
+
     return
 
-def add_an_article(dblp:Collection):
+
+def add_an_article(dblp: Collection):
     add_article(dblp)
     return
+
 
 task_dict = {
     "1": search_for_articles,
