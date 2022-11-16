@@ -13,3 +13,9 @@ def ARTICLE_UI(article, index, fields):
         print(f"{index}.")
     for f in fields:
         print(f"     {f}: {article[f]}")
+
+
+def AUTHOR_UI(author, index, num_publications):
+    if index == 1:
+        print("===================== Author Name & Number of Publications ===================")
+    print(f"{index}. {author} | num_publications: {num_publications}")
