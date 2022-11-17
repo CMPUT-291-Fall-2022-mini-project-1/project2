@@ -4,9 +4,12 @@ from add_an_article import add_article
 
 def search_for_articles(dblp:Collection):
     
-    # get all user keywords, 
-    keywords = list(set(input("Enter your keywords, separated by spaces: ").split(" ")))
-    keywords = [f"\"{k}\"" for k in keywords]
+    # get all user keywords, make them as phrases to perform AND semantic
+    keywords = []
+    while len(keywords) == 0:
+        keywords = set(input("Enter your keywords, separated by spaces: ").split(" "))
+        keywords.discard("")
+        keywords = [f"\"{k}\"" for k in keywords]
 
     # apply text searching on those keywords
     query = {"$text": {"$search": f"{' '.join(keywords)}"}}

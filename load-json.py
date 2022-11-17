@@ -1,9 +1,8 @@
 import sys
 import os
 
-from pymongo import MongoClient
+from pymongo import MongoClient, TEXT
 from pymongo.collection import Collection
-
 
 def insert_data(filename:str, port:str) -> None:
     cmd_str = f"mongoimport --port {port} --db 291db --collection dblp --drop --batchSize 15000 --file {filename}"
@@ -18,13 +17,16 @@ def insert_data(filename:str, port:str) -> None:
         {"$out": "dblp"}
     ])
     
-    dblp.create_index([
-        ("title", "text"),
-        ("authors", "text"),
-        ("abstract", "text"),
-        ("venue", "text"),
-        ("yearStr", "text")
-    ])
+    dblp.create_index(
+        keys = [
+            ("title", TEXT),
+            ("authors", TEXT),
+            ("abstract", TEXT),
+            ("venue", TEXT),
+            ("yearStr", TEXT)
+        ],
+        default_language='none'
+    )
 
 
 

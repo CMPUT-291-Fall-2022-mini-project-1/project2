@@ -28,20 +28,20 @@ def main(port):
     dblp = db["dblp"]
     
     # display UI & ask for selection
-    print(MAIN_UI)
-    opt = input("Select one option: ")
-    while opt not in task_dict:
-        print("Please make a proper selection")
+    while True:
+        print(MAIN_UI)
         opt = input("Select one option: ")
+        while opt not in task_dict:
+            print("Please make a proper selection")
+            opt = input("Select one option: ")
     
-    # process corresponding action
-    if task_dict[opt] is None:
-        client.close()
-        exit()
-    task_dict[opt](dblp)
+        # process corresponding action
+        if task_dict[opt] is None:
+            client.close()
+            exit()
+        task_dict[opt](dblp)
     
 
 if __name__ == "__main__":
     port = input("port: ")
-    while True:
-        main(port)
+    main(port)

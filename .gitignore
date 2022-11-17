@@ -1,4 +1,4 @@
-/data
+/data*
 /__pycache__
 /subtasks/__pycache__
 *.json
