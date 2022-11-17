@@ -1,6 +1,5 @@
 from pymongo.collection import Collection
 from ui import *
-from add_an_article import add_article
 
 def search_for_articles(dblp:Collection):
     
