@@ -46,8 +46,14 @@ def add_an_article(dblp: Collection):
             except ValueError:
                 print("Year is not valid.")
                 continue
+        
+        # get referenced by count
+        referenced_by_count = dblp.count_documents({"references": _id})
 
         # insert the new article
+        # user provided: id, title, authors, year
+        # empty field: abstract (null), venue (null), references ([]), n_citations (0)
+        # extra field: yearStr, referenced_by_count
         article = {
             'abstract': None,
             'venue': None,
@@ -57,7 +63,8 @@ def add_an_article(dblp: Collection):
             'title': title,
             'authors': authors,
             'year': year,
-            'yearStr': str(year)
+            'yearStr': str(year),
+            'referenced_by_count': referenced_by_count
         }
         dblp.insert_one(article)
         print("Add an article successful")
