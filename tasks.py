@@ -8,29 +8,47 @@ from subtasks.add_an_article import add_an_article
 
 
 def list_the_venues(dblp: Collection):
+    
+    while True:
+        try:
+            topN = int(input("Please provide top number: "))
+            if topN <= 0:
+                raise ValueError
+            break
+        except ValueError:
+            print("Invalid top number.")
+    result = dblp.aggregate([
+        {
+                "$match": {
+                    "venue": {
+                        "$exists": "true",
+                        "$nin": ["", "null"]
+                    }
+                }
+            },
+            {
+                "$group":
+                {
+                    "_id": "$venue",
+                    "citation_sum": {"$sum": "$referenced_by_count"},
+                    "article_sum": {"$sum": 1}
+                }
+            },
+            {
+                "$sort": {"citation_sum": -1}
+            },
 
-    venueCount = {}
-    venues = dblp.distinct("venue")
-    venues.remove("")
-
-    for venue in venues:
-        articleInVenue = dblp.find({"venue": venue})
-        venueCount[venue] = [0]
-        articleCount = 0
-        for article in articleInVenue:
-            articleCount += 1
-            venueCount[venue][0] += article["n_citation"]
-        venueCount[venue].append(articleCount)
-
-    topN = int(input("Enter top number: "))
+    ])
+    
     print("==================== Venues ====================")
 
     index = 1
-    for venueName in sorted(venueCount, key=venueCount.get, reverse=True):
+    for venue in result:
         print(str(index) + ".")
-        print("     " + "venue: " + venueName)
-        print("     " + "article count: " + str(venueCount[venueName][1]))
-        print("     " + "citation count: " + str(venueCount[venueName][0]))
+        print("     " + "venue: " + venue["_id"])
+        print("     " + "article count: " + str(venue["article_sum"]))
+        print("     " + "citation count: " +
+              str(venue["citation_sum"]))
         if index == topN:
             break
         else:

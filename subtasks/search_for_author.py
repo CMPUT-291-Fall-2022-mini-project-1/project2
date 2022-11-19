@@ -7,13 +7,17 @@ def search_for_authors(dblp:Collection):
     keyword = ""
     while keyword.isspace() or keyword == "":
         keyword = input("Enter your keyword: ")
-    keyword = f".*\\b{keyword}\\b.*"
+    dot_placeholder = "<dot"
+    keyword = keyword.replace(".", dot_placeholder)
+    keyword_regex = f".*\\b{keyword}\\b.*"
     
     # match to authors; author arrays need to be splitted
     # result should be sorted based on year with more recent articles shown first
     search_res = dblp.aggregate([
+        {"$match": {"$text": {"$search": keyword}}},
         {"$unwind": "$authors"},
-        {"$match": {"authors": {"$regex": keyword, "$options": "i"}}},
+        {"$set": {"author_search_only": {"$replaceAll": {"input": "$authors", "find": ".", "replacement": dot_placeholder}}}},
+        {"$match": {"author_search_only": {"$regex": keyword_regex, "$options": "i"}}},
         {"$sort": {"year": -1}}
     ])
     
