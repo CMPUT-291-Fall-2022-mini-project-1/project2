@@ -8,7 +8,8 @@ from subtasks.add_an_article import add_an_article
 
 
 def list_the_venues(dblp: Collection):
-    
+
+    # check for inut number n
     while True:
         try:
             topN = int(input("Please provide top number: "))
@@ -17,29 +18,32 @@ def list_the_venues(dblp: Collection):
             break
         except ValueError:
             print("Invalid top number.")
+
     result = dblp.aggregate([
+
+        # execlude null and empty venue name
         {
-                "$match": {
-                    "venue": {
-                        "$exists": "true",
-                        "$nin": ["", "null"]
-                    }
+            "$match": {
+                "venue": {
+                    "$exists": "true",
+                    "$nin": ["", "null"]
                 }
-            },
-            {
-                "$group":
+            }
+        },
+        {
+            "$group":
                 {
                     "_id": "$venue",
                     "citation_sum": {"$sum": "$referenced_by_count"},
                     "article_sum": {"$sum": 1}
                 }
-            },
-            {
-                "$sort": {"citation_sum": -1}
-            },
+        },
+        {
+            "$sort": {"citation_sum": -1}
+        },
 
     ])
-    
+
     print("==================== Venues ====================")
 
     index = 1
