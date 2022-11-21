@@ -2,3 +2,4 @@
 /__pycache__
 /subtasks/__pycache__
 *.json
+test*

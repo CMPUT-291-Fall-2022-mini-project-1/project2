@@ -10,7 +10,7 @@ from datetime import datetime
 
 def insert_data(filename:str, port:str) -> None:
     c = multiprocessing.cpu_count()
-    # print(c)
+    print(c)
     cmd_str = f"mongoimport --port {port} --db 291db --collection dblp --drop --batchSize 15000 --file {filename} --numInsertionWorkers {c}"
     os.system(cmd_str)
     
@@ -26,9 +26,6 @@ def insert_data(filename:str, port:str) -> None:
     # print(f"Reference index create complete, time: {datetime.now()}")
     
     dblp.aggregate([
-        {"$addFields":
-            {"yearStr": {"$toString": "$year"}},
-        },
         {
             "$lookup": {
                 "from": "dblp",
@@ -37,8 +34,11 @@ def insert_data(filename:str, port:str) -> None:
                 "as": "referenced_by_count"
             }
         },
-        {"$addFields":
-            {"referenced_by_count": {"$size": "$referenced_by_count"}},
+        {
+            "$addFields":{
+                "referenced_by_count": {"$size": "$referenced_by_count"},
+                "yearStr": {"$toString": "$year"}
+            }
         },
         {"$out": "dblp"}
     ])
@@ -52,7 +52,7 @@ def insert_data(filename:str, port:str) -> None:
             ("venue", TEXT),
             ("yearStr", TEXT)
         ],
-        # default_language='none'
+        #default_language='none'
     )
     print(f"Database Construction complete, current time: {datetime.now()}")
     # print(f"Database construction finished in {time.time() - t} sec.")
