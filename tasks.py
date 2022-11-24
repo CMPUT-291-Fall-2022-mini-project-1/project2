@@ -18,42 +18,8 @@ def list_the_venues(dblp: Collection):
             break
         except ValueError:
             print("Invalid top number.")
-
-    result = dblp.aggregate([
-
-        # execlude null and empty venue name
-        {
-            "$match": {
-                "venue": {
-                    "$exists": "true",
-                    "$nin": ["", "null"]
-                }
-            }
-        },
-        {
-            "$group":
-                {
-                    "_id": "$venue",
-                    "referenced_by_count": {"$push": "$referenced_by_count"},
-                    "article_sum": {"$sum": 1}
-                }
-        },
-        {
-            "$addFields": {
-                "referenced_by_count": {
-                    "$reduce": {
-                        "input": "$referenced_by_count",
-                        "initialValue": [],
-                        "in": { "$concatArrays": [ "$$value", "$$this" ] }
-                    }
-                }
-            }
-        },
-        {
-            "$sort": {"referenced_by_count": -1}
-        },
-
-    ])
+    
+    result = dblp.find({})
 
     print("==================== Venues ====================")
 
@@ -63,9 +29,9 @@ def list_the_venues(dblp: Collection):
             continue
         print(str(index) + ".")
         print("     " + "venue: " + venue["_id"])
-        print("     " + "article count: " + str(venue["article_sum"]))
+        print("     " + "article count: " + str(venue["article_count"]))
         print("     " + "citation count: " +
-              str(len(set(venue["referenced_by_count"]))))
+              str(venue["referenced_by_count"]))
         if index == topN:
             break
         else:

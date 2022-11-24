@@ -65,7 +65,8 @@ def add_an_article(dblp: Collection):
             'authors': authors,
             'year': year,
             'yearStr': str(year),
-            'referenced_by_count': reference_list
+            'referenced_by_count': reference_list,
+            'referenced_by_count_num': len(reference_list)
         }
         dblp.insert_one(article)
         print("Add an article successful")

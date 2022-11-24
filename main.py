@@ -25,6 +25,10 @@ def main(port):
     if "dblp" not in collection_list:
         print("Data not loaded yet")
         exit()
+    if "dblp-article-count" in collection_list:
+        db["dblp-article-count"].drop()
+    if "dblp-zero-citation" in collection_list:
+        db["dblp-zero-citation"].drop()
     dblp = db["dblp"]
     
     # display UI & ask for selection
@@ -34,6 +38,11 @@ def main(port):
         while opt not in task_dict:
             print("Please make a proper selection")
             opt = input("Select one option: ")
+        
+        if opt == "3":
+            dblp_venue = db["dblp-citation-count"]
+            task_dict[opt](dblp_venue)
+            continue
     
         # process corresponding action
         if task_dict[opt] is None:
