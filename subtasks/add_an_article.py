@@ -48,7 +48,8 @@ def add_an_article(dblp: Collection):
                 continue
         
         # get referenced by count
-        referenced_by_count = dblp.count_documents({"references": _id})
+        referenced_by_count = dblp.find({"references": _id})
+        reference_list = list(set([r["id"] for r in referenced_by_count]))
 
         # insert the new article
         # user provided: id, title, authors, year
@@ -64,7 +65,7 @@ def add_an_article(dblp: Collection):
             'authors': authors,
             'year': year,
             'yearStr': str(year),
-            'referenced_by_count': referenced_by_count
+            'referenced_by_count': reference_list
         }
         dblp.insert_one(article)
         print("Add an article successful")

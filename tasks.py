@@ -34,12 +34,23 @@ def list_the_venues(dblp: Collection):
             "$group":
                 {
                     "_id": "$venue",
-                    "citation_sum": {"$sum": "$referenced_by_count"},
+                    "referenced_by_count": {"$push": "$referenced_by_count"},
                     "article_sum": {"$sum": 1}
                 }
         },
         {
-            "$sort": {"citation_sum": -1}
+            "$addFields": {
+                "referenced_by_count": {
+                    "$reduce": {
+                        "input": "$referenced_by_count",
+                        "initialValue": [],
+                        "in": { "$concatArrays": [ "$$value", "$$this" ] }
+                    }
+                }
+            }
+        },
+        {
+            "$sort": {"referenced_by_count": -1}
         },
 
     ])
@@ -48,11 +59,13 @@ def list_the_venues(dblp: Collection):
 
     index = 1
     for venue in result:
+        if venue["_id"] is None or venue["_id"] == "":
+            continue
         print(str(index) + ".")
         print("     " + "venue: " + venue["_id"])
         print("     " + "article count: " + str(venue["article_sum"]))
         print("     " + "citation count: " +
-              str(venue["citation_sum"]))
+              str(len(set(venue["referenced_by_count"]))))
         if index == topN:
             break
         else:

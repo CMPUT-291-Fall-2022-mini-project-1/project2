@@ -36,7 +36,7 @@ def insert_data(filename:str, port:str) -> None:
         },
         {
             "$addFields":{
-                "referenced_by_count": {"$size": "$referenced_by_count"},
+                "referenced_by_count": "$referenced_by_count.id", #{"$size": "$referenced_by_count"},
                 "yearStr": {"$toString": "$year"}
             }
         },
